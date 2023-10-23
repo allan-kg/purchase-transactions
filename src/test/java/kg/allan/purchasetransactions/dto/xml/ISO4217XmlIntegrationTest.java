@@ -1,5 +1,6 @@
-package kg.allan.purchasetransactions.xml;
+package kg.allan.purchasetransactions.dto.xml;
 
+import kg.allan.purchasetransactions.dto.xml.ISO4217Xml;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -28,30 +29,15 @@ public class ISO4217XmlIntegrationTest {
     ISO4217Service service;
 
     @Test
-    public void retrieveXmlTest() throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(ISO4217Xml.class);
-
-        Unmarshaller unmarshaller;
+    public void retrieveXmlTest() throws Exception {
         try {
-            unmarshaller = context.createUnmarshaller();
+            var countries = service.retrieveCountryISO4217XmlList();
 
-            String xmlContent = service.getISO4217Xml();
-
-            StringReader reader = new StringReader(xmlContent);
-
-            ISO4217Xml iso = (ISO4217Xml) unmarshaller.unmarshal(reader);
-
-//            for (var xml : iso.getCountryTable().getCountries()) {
-//                System.err.println("----------------------------");
-//                System.err.println("COUNTRY = " + xml.getCountry());
-//                System.err.println("CURRENCY = " + xml.getCurrency());
-//                System.err.println("CODE = " + xml.getCode());
-//            }
-            Assertions.assertEquals(281, iso.getCountryTable().getCountries().size());
+            Assertions.assertEquals(281, countries.size());
             
             String[] codesArray = {"CAD", "BRL"};
             List<String> codes = Arrays.asList(codesArray);
-            Assertions.assertEquals(2, iso.getCountryTable().getCountries().stream().filter(c -> codes.contains(c.getCode())).count());
+            Assertions.assertEquals(2, countries.stream().filter(c -> codes.contains(c.getCode())).count());
         } catch (RuntimeException e) {
             Assertions.fail(e.getMessage());
         }

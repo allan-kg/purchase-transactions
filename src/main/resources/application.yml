@@ -4,3 +4,19 @@ spring:
 iso4217:
   xml:
     url: "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml"
+trre:
+  endpoint: "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange"
+  parameters:
+    fields_parameter: "fields=record_date,country,exchange_rate"
+    filters: "filter="
+    filter:
+      country: "country:"
+      record_date: "record_date:"
+      eq: "eq:"
+      le: "lte:"
+      ge: "gte:"
+      format:
+        record_date: "yyyy-MM-dd"
+        
+#      fields=record_date,country,exchange_rate&filter=country:eq:Brazil,record_date:eq:2023-06-30
+#      ,record_date:lte:2023-06-30,record_date:gte:2023-01-30

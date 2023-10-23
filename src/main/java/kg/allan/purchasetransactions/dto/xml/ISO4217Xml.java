@@ -1,4 +1,4 @@
-package kg.allan.purchasetransactions.xml;
+package kg.allan.purchasetransactions.dto.xml;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
