@@ -4,15 +4,11 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
-import io.cucumber.spring.CucumberContextConfiguration;
 import java.util.Currency;
-import kg.allan.purchasetransactions.PurchaseTransactionsApplication;
 import kg.allan.purchasetransactions.entity.Transaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 /**
  *
@@ -20,10 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @Log4j2
 @RequiredArgsConstructor
-//@CucumberContextConfiguration
-//@SpringBootTest(classes = PurchaseTransactionsApplication.class)
-//@ActiveProfiles("integration")
-public class CurrencyConversionStepDefinitionsTest extends CucumberSpringContextConfigTest {
+public class CurrencyConversionStepDefinitions extends CucumberSpringContextConfigTest {
     private Currency targetCurrency;
     private Transaction transaction;
 
