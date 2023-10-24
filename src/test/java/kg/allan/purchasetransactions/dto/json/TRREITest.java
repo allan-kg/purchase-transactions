@@ -1,4 +1,4 @@
-package kg.allan.purchasetransactions.dto.java;
+package kg.allan.purchasetransactions.dto.json;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
 @ActiveProfiles("integration")
-public class TRREIntegrationTest {
+public class TRREITest {
     
     @Autowired
     TRREService service;

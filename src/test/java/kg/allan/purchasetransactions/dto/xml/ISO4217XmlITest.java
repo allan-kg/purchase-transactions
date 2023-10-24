@@ -23,7 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
 @ActiveProfiles("integration")
-public class ISO4217XmlIntegrationTest {
+public class ISO4217XmlITest {
 
     @Autowired
     ISO4217Service service;

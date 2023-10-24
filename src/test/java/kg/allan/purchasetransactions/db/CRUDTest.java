@@ -29,8 +29,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
  */
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
 @TestMethodOrder(OrderAnnotation.class)
-@ActiveProfiles("integration")
-public class CRUDIntegrationTest {
+//@ActiveProfiles("integration")
+public class CRUDTest {
     
     @MockBean
     TransactionRepository repository;
