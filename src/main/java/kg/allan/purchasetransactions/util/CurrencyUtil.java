@@ -1,10 +1,11 @@
 package kg.allan.purchasetransactions.util;
 
+import java.math.BigDecimal;
 import javax.money.CurrencyUnit;
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
 import javax.money.RoundingQueryBuilder;
-import javax.money.convert.MonetaryConversions;
+import org.javamoney.moneta.Money;
 
 /**
  *
@@ -12,13 +13,33 @@ import javax.money.convert.MonetaryConversions;
  */
 public class CurrencyUtil {
     
+    
+    synchronized public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate, int scale){
+        var roundingQuery = RoundingQueryBuilder.of().setScale(scale).build();
+        var rounding = Monetary.getRounding(roundingQuery);
+        return Money.of(from.getNumber(), currency).multiply(exchangeRate).with(rounding);
+    }
+
+    synchronized public static MonetaryAmount convert(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate, int scale){
+        CurrencyUnit currency = Monetary.getCurrency(currencyCode);
+        return convert(from, currency, exchangeRate, scale);
+    }
+    
+    synchronized public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate){
+        return convert(from, currency, exchangeRate, 2);
+    }
+    
+    synchronized public static MonetaryAmount convert(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate){
+        CurrencyUnit currency = Monetary.getCurrency(currencyCode);
+        return convert(from, currency, exchangeRate);
+    }
+    
     synchronized public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency){
-        var conversion = MonetaryConversions.getConversion(currency);
-        return from.with(conversion);
+        return convert(from, currency, BigDecimal.valueOf(1.0));
     }
     
     synchronized public static MonetaryAmount convert(MonetaryAmount from, String currencyCode){
-        var currency = Monetary.getCurrency(currencyCode);
+        CurrencyUnit currency = Monetary.getCurrency(currencyCode);
         return convert(from, currency);
     }
     

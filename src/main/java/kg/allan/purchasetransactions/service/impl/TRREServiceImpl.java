@@ -8,8 +8,12 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import kg.allan.purchasetransactions.dto.json.CountryTRREJson;
 import kg.allan.purchasetransactions.dto.json.DataTRREJson;
+import kg.allan.purchasetransactions.exception.GetRequestException;
+import kg.allan.purchasetransactions.exception.JsonParseException;
 import kg.allan.purchasetransactions.service.RestService;
 import kg.allan.purchasetransactions.service.TRREService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +112,7 @@ public class TRREServiceImpl implements TRREService {
         return params;
     }
 
-    public Optional<CountryTRREJson> retrieveCountryJson(String country, String date) throws Exception {
+    public Optional<CountryTRREJson> retrieveCountryJson(String country, String date) throws GetRequestException, JsonParseException {
         String uri = jsonEndpoint + "?" + fieldsParameter;
         String params = buildParametersSingleRate(country, date);
         if (StringUtils.hasText(params)) {
@@ -118,16 +122,20 @@ public class TRREServiceImpl implements TRREService {
         ResponseEntity<String> response = restService.getRestTemplate().getForEntity(uri, String.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            Jsonb jsonb = JsonbBuilder.create();
-            var countryObj = jsonb.fromJson(response.getBody(), DataTRREJson.class);
-            jsonb.close();
-            return countryObj.getData().stream().findFirst();
+            try {
+                Jsonb jsonb = JsonbBuilder.create();
+                var countryObj = jsonb.fromJson(response.getBody(), DataTRREJson.class);
+                jsonb.close();
+                return countryObj.getData().stream().findFirst();
+            } catch (Exception ex) {
+                throw new JsonParseException("Error: Unable to parse json.", ex);
+            }
         } else {
-            throw new RestClientException("Error: Unable to fetch ISO 4217 Xml.");
+            throw new GetRequestException("Error: Unable to fetch json.");
         }
     }
 
-    public List<CountryTRREJson> retrieveCountryRatesJson(String country, String dateMin, String dateMax) throws Exception {
+    public List<CountryTRREJson> retrieveCountryRatesJson(String country, String dateMin, String dateMax) throws GetRequestException, JsonParseException {
         String uri = jsonEndpoint + "?" + fieldsParameter;
         String params = buildParametersForPeriod(country, dateMin, dateMax);
         if (StringUtils.hasText(params)) {
@@ -137,12 +145,16 @@ public class TRREServiceImpl implements TRREService {
         ResponseEntity<String> response = restService.getRestTemplate().getForEntity(uri, String.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            Jsonb jsonb = JsonbBuilder.create();
-            var data = (DataTRREJson) jsonb.fromJson(response.getBody(), DataTRREJson.class);
-            jsonb.close();
-            return data.getData();
+            try {
+                Jsonb jsonb = JsonbBuilder.create();
+                var data = (DataTRREJson) jsonb.fromJson(response.getBody(), DataTRREJson.class);
+                jsonb.close();
+                return data.getData();
+            } catch (Exception ex) {
+                throw new JsonParseException("Error: Unable to parse json.", ex);
+            }
         } else {
-            throw new RestClientException("Error: Unable to fetch ISO 4217 Xml.");
+            throw new GetRequestException("Error: Unable to fetch json.");
         }
     }
 
