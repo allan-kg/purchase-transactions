@@ -2,14 +2,14 @@ package kg.allan.purchasetransactions.db;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
 import kg.allan.purchasetransactions.PurchaseTransactionsApplication;
-import kg.allan.purchasetransactions.entity.Transaction;
+import kg.allan.purchasetransactions.entity.PurchaseTransactionEntity;
 import org.javamoney.moneta.Money;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,10 +18,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import kg.allan.purchasetransactions.repository.TransactionRepository;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import kg.allan.purchasetransactions.repository.PurchaseTransactionRepository;
 
 /**
  *
@@ -33,7 +32,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 public class CRUDTest {
     
     @MockBean
-    TransactionRepository repository;
+    PurchaseTransactionRepository repository;
     
     static final Integer [] IDS = {Integer.MAX_VALUE, Integer.MAX_VALUE-1, Integer.MAX_VALUE-2, Integer.MAX_VALUE-3, Integer.MAX_VALUE-4};
     static final String [] DESCS = {"DESC 1", "DESC 2", "DESC 3", "DESC 4", "DESC 5"};
@@ -44,12 +43,12 @@ public class CRUDTest {
         Money.of(250000.37, Monetary.getCurrency(Locale.US)),
         Money.of(14.499999, "USD")
     };
-    static final LocalDateTime [] DATES = {
-        LocalDateTime.parse("1980-04-01T19:30:45.123"),
-        LocalDateTime.parse("1990-04-09T19:30:45.123"),
-        LocalDateTime.parse("2000-04-21T19:30:45.123"),
-        LocalDateTime.parse("2010-12-21T00:30:45.123"),
-        LocalDateTime.parse("2020-12-31T23:59:59.999")
+    static final LocalDate [] DATES = {
+        LocalDate.parse("1980-04-01"),
+        LocalDate.parse("1990-04-09"),
+        LocalDate.parse("2000-04-21"),
+        LocalDate.parse("2010-12-21"),
+        LocalDate.parse("2020-12-31")
     };
     static final BigDecimal RATES [] = {
         new BigDecimal(1.00),
@@ -66,14 +65,14 @@ public class CRUDTest {
         Money.of(AMOUNTS[0].divide(RATES[0].longValue()).getNumber() , Monetary.getCurrency(Locale.CANADA))
     };
     
-    static List<Transaction> transactions;
+    static List<PurchaseTransactionEntity> transactions;
     
     @BeforeAll
     public static void setup(){
-        var list = new CopyOnWriteArrayList<Transaction>();
+        var list = new CopyOnWriteArrayList<PurchaseTransactionEntity>();
         for(int i = 0; i < IDS.length; i++){
             // in fact, te id will be ignored
-            Transaction t = new Transaction(IDS[i], DESCS[i], DATES[i], AMOUNTS[i], RATES[i], CONVERTED_AMOUNTS[i]);
+            PurchaseTransactionEntity t = new PurchaseTransactionEntity(IDS[i], DESCS[i], DATES[i], AMOUNTS[i]);
             list.add(t);
         }
         transactions = list;

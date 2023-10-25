@@ -5,6 +5,7 @@ import jakarta.json.JsonReader;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +113,7 @@ public class TRREServiceImpl implements TRREService {
         return params;
     }
 
-    public Optional<CountryTRREJson> retrieveCountryJson(String country, String date) throws GetRequestException, JsonParseException {
+    public Optional<CountryTRREJson> fetchRateByDate(String country, String date) throws GetRequestException, JsonParseException {
         String uri = jsonEndpoint + "?" + fieldsParameter;
         String params = buildParametersSingleRate(country, date);
         if (StringUtils.hasText(params)) {
@@ -135,7 +136,7 @@ public class TRREServiceImpl implements TRREService {
         }
     }
 
-    public List<CountryTRREJson> retrieveCountryRatesJson(String country, String dateMin, String dateMax) throws GetRequestException, JsonParseException {
+    public List<CountryTRREJson> fetchRatesByDateRange(String country, String dateMin, String dateMax) throws GetRequestException, JsonParseException {
         String uri = jsonEndpoint + "?" + fieldsParameter;
         String params = buildParametersForPeriod(country, dateMin, dateMax);
         if (StringUtils.hasText(params)) {
@@ -156,6 +157,11 @@ public class TRREServiceImpl implements TRREService {
         } else {
             throw new GetRequestException("Error: Unable to fetch json.");
         }
+    }
+
+    @Override
+    public String formatDate(LocalDate maxDate) throws GetRequestException, JsonParseException {
+        return maxDate.getYear() + "-" + String.format("%02d", maxDate.getMonthValue()) + "-" + String.format("%02d", maxDate.getDayOfMonth());
     }
 
 }

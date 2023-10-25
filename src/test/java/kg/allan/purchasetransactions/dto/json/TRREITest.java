@@ -24,7 +24,7 @@ public class TRREITest {
     
     @Test
     public void retrieveSingleCountryRateTest()throws Exception{
-        var oCountry = service.retrieveCountryJson("Brazil", "2023-06-30");
+        var oCountry = service.fetchRateByDate("Brazil", "2023-06-30");
         Assertions.assertTrue(oCountry.isPresent());
         var country = oCountry.get();
         Assertions.assertEquals("Brazil", country.getCountry());
@@ -34,7 +34,7 @@ public class TRREITest {
     
     @Test
     public void retrieveExchangeRatesForCountryByPeriodTest()throws Exception{
-        var countries = service.retrieveCountryRatesJson("Brazil", "2023-03-31", "2023-06-30");
+        var countries = service.fetchRatesByDateRange("Brazil", "2023-03-31", "2023-06-30");
         Assertions.assertEquals(2, countries.size());
         Assertions.assertEquals(new BigDecimal("5.098"), countries.get(0).getExchangeRate());
         Assertions.assertEquals(new BigDecimal("4.858"), countries.get(1).getExchangeRate());
