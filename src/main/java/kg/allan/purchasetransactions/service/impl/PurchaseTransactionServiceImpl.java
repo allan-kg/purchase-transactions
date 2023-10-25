@@ -30,13 +30,12 @@ import kg.allan.purchasetransactions.util.CurrencyUtil;
 import org.springframework.util.StringUtils;
 
 /**
- * 
+ *
  * @author allan
  */
 @Service
 public class PurchaseTransactionServiceImpl implements PurchaseTransactionService {
 
-      
     @Autowired
     private PurchaseTransactionRepository repository;
 
@@ -147,25 +146,6 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
         return Optional.of(cpt);
     }
 
-    private Optional<ExchangeDTO> convertPurchaseTransactionByCurrencyCode(PurchaseTransactionEntity entity, String currencyCode) throws FetchFailedException, JsonParseException, ElementNotFoundException {
-        var maxDate = trreService.formatDate(entity.getDate());
-        var minDate = trreService.formatDate(entity.getDate().minusMonths(6));
-
-        var country = isoService.countryNameOf(currencyCode);
-
-        var oCountryTRREJson = trreService.fetchClosestToMaxDate(country, minDate, maxDate);
-        if (!oCountryTRREJson.isPresent()) {
-            return Optional.empty();
-        }
-
-        var countryTRREJson = oCountryTRREJson.get();
-
-        var convertedAmount = CurrencyUtil.convert(entity.getAmount(), currencyCode, countryTRREJson.getExchangeRate());
-
-        ExchangeDTO cpt = new ExchangeDTO(convertedAmount, countryTRREJson.getExchangeRate(), countryTRREJson.getRecordDate());
-        return Optional.of(cpt);
-    }
-
     @Override
     public PurchaseTransactionDTO newPurchaseTransaction(PurchaseTransactionDTO newPurchaseTransaction) throws InvalidPurchaseTransactionException {
         PurchaseTransactionEntity entity = instantiateEntity(newPurchaseTransaction);
@@ -215,16 +195,9 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
 
     private PurchaseWithExchangeDTO convert(PurchaseTransactionEntity entity, String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
         Optional<ExchangeDTO> oConverted = Optional.empty();
-        if (target.length() == 3) {
-            oConverted = convertPurchaseTransactionByCurrencyCode(entity, target);
-            if (oConverted.isEmpty()) {
-                throw new ConversionFailedException("Couldn't convert transaction using code \"" + target + "\".");
-            }
-        } else {
-            oConverted = convertPurchaseTransactionByCountry(entity, target);
-            if (oConverted.isEmpty()) {
-                throw new ConversionFailedException("Couldn't convert transaction using country name \"" + target + "\".");
-            }
+        oConverted = convertPurchaseTransactionByCountry(entity, target);
+        if (oConverted.isEmpty()) {
+            throw new ConversionFailedException("Couldn't convert transaction using country name \"" + target + "\".");
         }
 
         var purchase = dto(entity);

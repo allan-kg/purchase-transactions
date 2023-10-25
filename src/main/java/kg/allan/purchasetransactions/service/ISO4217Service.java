@@ -12,6 +12,5 @@ import kg.allan.purchasetransactions.exception.XmlParseException;
  */
 public interface ISO4217Service {
     public List<CountryISO4217Xml> getCountries();
-    public String currencyCodeOf(String name) throws ElementNotFoundException;
-    public String countryNameOf(String currencyCode) throws ElementNotFoundException;
+    public String currencyCodeOf(String country) throws ElementNotFoundException;
 }

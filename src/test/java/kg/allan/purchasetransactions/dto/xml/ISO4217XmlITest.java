@@ -39,14 +39,6 @@ public class ISO4217XmlITest {
     }
 
     @Test
-    public void countryName() throws ElementNotFoundException {
-        assertThatThrownBy(() -> service.countryNameOf("ASDASD"))
-                .isInstanceOf(ElementNotFoundException.class);
-        assertThat(service.countryNameOf("BRL")).isEqualToIgnoringCase("Brazil");
-        assertThat(service.countryNameOf("CAD")).isEqualToIgnoringCase("Canada");
-    }
-    
-    @Test
     public void countryCode() throws ElementNotFoundException {
         assertThatThrownBy(() -> service.currencyCodeOf("ASDASD"))
                 .isInstanceOf(ElementNotFoundException.class);

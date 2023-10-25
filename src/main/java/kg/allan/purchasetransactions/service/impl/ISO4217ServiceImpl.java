@@ -89,15 +89,4 @@ public class ISO4217ServiceImpl implements ISO4217Service {
         var country = oc.get();
         return country.getCode();
     }
-
-    public String countryNameOf(String code) throws ElementNotFoundException{
-        var oc = countries.stream()
-                .filter(c -> c.getCode().equalsIgnoreCase(code))
-                .findFirst();
-        if(!oc.isPresent()){
-            throw new ElementNotFoundException("Country name not found for ISO 4217 code \"" + code + "\"");
-        }
-        var country = oc.get();
-        return country.getCountry();
-    }
 }

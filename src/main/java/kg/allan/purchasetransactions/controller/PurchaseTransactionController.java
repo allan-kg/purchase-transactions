@@ -88,24 +88,17 @@ public class PurchaseTransactionController {
         return CollectionModel.of(transactions, linkTo(methodOn(PurchaseTransactionController.class).all()).withSelfRel());
     }
     
-    /**
-     * Convert a transaction.
-     * <br>
-     * There is no country in the world whose name consists of only three characters.
-     * @param id
-     * @return 
-     */
-    @GetMapping("/transaction/{id}/{target}")
-    EntityModel<PurchaseWithExchangeDTO> convert(@PathVariable Integer id, @PathVariable String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
-        PurchaseWithExchangeDTO transaction = service.convert(id, target)
+    @GetMapping("/transaction/{id}/{country}")
+    EntityModel<PurchaseWithExchangeDTO> convert(@PathVariable Integer id, @PathVariable String country) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+        PurchaseWithExchangeDTO transaction = service.convert(id, country)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find purchase transaction \"" + id + "\""));
         return currencyAssembler.toModel(transaction);
     }
 
-    @GetMapping("/transactions/{target}")
-    CollectionModel<EntityModel<PurchaseWithExchangeDTO>> convertAll( @PathVariable String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+    @GetMapping("/transactions/{country}")
+    CollectionModel<EntityModel<PurchaseWithExchangeDTO>> convertAll( @PathVariable String country) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
 
-        List<EntityModel<PurchaseWithExchangeDTO>> transactions = service.convertAll(target).stream()
+        List<EntityModel<PurchaseWithExchangeDTO>> transactions = service.convertAll(country).stream()
                 .parallel()
                 .map(currencyAssembler::toModel)
                 .collect(Collectors.toList());
