@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object for {@link Transaction}.
+ * Data Transfer Object for {@link PurchaseTransactionEntity}.
  * <br>
  * I have intentionally chosen not to implement Serializable as there has been
  * no requirement to serialize this object in any format other than JSON for
@@ -24,8 +24,5 @@ public class PurchaseTransactionDTO {
     private String date;
     
     private String amount;
-    
-    private String rate;
-    
-    private String convertedAmount;
+   
 }

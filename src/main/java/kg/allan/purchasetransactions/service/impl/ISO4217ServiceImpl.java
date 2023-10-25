@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 import kg.allan.purchasetransactions.dto.xml.CountryISO4217Xml;
 import kg.allan.purchasetransactions.dto.xml.ISO4217Xml;
 import kg.allan.purchasetransactions.exception.ElementNotFoundException;
-import kg.allan.purchasetransactions.exception.GetRequestException;
+import kg.allan.purchasetransactions.exception.FetchFailedException;
 import kg.allan.purchasetransactions.exception.XmlParseException;
 import kg.allan.purchasetransactions.service.ISO4217Service;
 import kg.allan.purchasetransactions.service.RestService;
@@ -36,16 +36,16 @@ public class ISO4217ServiceImpl implements ISO4217Service {
     @Autowired
     private RestService restService;
 
-    private String fetchISO4217XmlContent() throws GetRequestException {
+    private String fetchISO4217XmlContent() throws FetchFailedException {
         ResponseEntity<String> response = restService.getRestTemplate().getForEntity(xmlURL, String.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         } else {
-            throw new GetRequestException("Error: Unable to fetch ISO 4217 Xml.");
+            throw new FetchFailedException("Error: Unable to fetch ISO 4217 Xml.");
         }
     }
 
-    private List<CountryISO4217Xml> fetchCountryISO4217XmlList() throws XmlParseException, GetRequestException {
+    private List<CountryISO4217Xml> fetchCountryISO4217XmlList() throws XmlParseException, FetchFailedException {
         try {
         JAXBContext context = JAXBContext.newInstance(ISO4217Xml.class);
 
@@ -65,17 +65,22 @@ public class ISO4217ServiceImpl implements ISO4217Service {
     }
     
     @PostConstruct
-    private void fetchXmlData() throws XmlParseException, GetRequestException{
+    private void fetchXmlData() throws XmlParseException, FetchFailedException{
         this.countries = fetchCountryISO4217XmlList();
+        this.countries.forEach(c -> {
+            if(c.getCountry() == null)
+                c.setCountry("");
+            if(c.getCode() == null)
+                c.setCode("");
+        });
     }
 
     public List<CountryISO4217Xml> getCountries() {
         return this.countries;
     }
 
-    public String countryCode(String name) throws ElementNotFoundException{
+    public String currencyCodeOf(String name) throws ElementNotFoundException{
         var oc = countries.stream()
-                .parallel()
                 .filter(c -> c.getCountry().equalsIgnoreCase(name))
                 .findFirst();
         if(!oc.isPresent()){
@@ -85,9 +90,8 @@ public class ISO4217ServiceImpl implements ISO4217Service {
         return country.getCode();
     }
 
-    public String countryName(String code) throws ElementNotFoundException{
+    public String countryNameOf(String code) throws ElementNotFoundException{
         var oc = countries.stream()
-                .parallel()
                 .filter(c -> c.getCode().equalsIgnoreCase(code))
                 .findFirst();
         if(!oc.isPresent()){

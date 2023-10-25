@@ -2,8 +2,13 @@ package kg.allan.purchasetransactions.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import kg.allan.purchasetransactions.dto.PurchaseWithExchangeDTO;
 import kg.allan.purchasetransactions.dto.PurchaseTransactionDTO;
+import kg.allan.purchasetransactions.exception.ConversionFailedException;
+import kg.allan.purchasetransactions.exception.ElementNotFoundException;
+import kg.allan.purchasetransactions.exception.FetchFailedException;
 import kg.allan.purchasetransactions.exception.InvalidPurchaseTransactionException;
+import kg.allan.purchasetransactions.exception.JsonParseException;
 import kg.allan.purchasetransactions.service.PurchaseTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -25,17 +30,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  * @author allan
  */
 @RestController
-//@RequestMapping
 public class PurchaseTransactionController {
 
     @Autowired
     private PurchaseTransactionService service;
 
-    private final PurchaseTransactionDTOModel assembler;
-
-    public PurchaseTransactionController(PurchaseTransactionDTOModel assembler) {
-        this.assembler = assembler;
-    }
+    @Autowired
+    private PurchaseTransactionDTOModel assembler;
+    
+    @Autowired
+    private PurchaseWithExchangeDTOModel currencyAssembler;
 
     @PostMapping("/transaction/new")
     ResponseEntity<?> newPurchaseTransaction(@RequestBody PurchaseTransactionDTO newPurchaseTransaction) {
@@ -79,6 +83,31 @@ public class PurchaseTransactionController {
                 .stream()
                 .parallel()
                 .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(transactions, linkTo(methodOn(PurchaseTransactionController.class).all()).withSelfRel());
+    }
+    
+    /**
+     * Convert a transaction.
+     * <br>
+     * There is no country in the world whose name consists of only three characters.
+     * @param id
+     * @return 
+     */
+    @GetMapping("/transaction/{id}/{target}")
+    EntityModel<PurchaseWithExchangeDTO> convert(@PathVariable Integer id, @PathVariable String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+        PurchaseWithExchangeDTO transaction = service.convert(id, target)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find purchase transaction \"" + id + "\""));
+        return currencyAssembler.toModel(transaction);
+    }
+
+    @GetMapping("/transactions/{target}")
+    CollectionModel<EntityModel<PurchaseWithExchangeDTO>> convertAll( @PathVariable String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+
+        List<EntityModel<PurchaseWithExchangeDTO>> transactions = service.convertAll(target).stream()
+                .parallel()
+                .map(currencyAssembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(transactions, linkTo(methodOn(PurchaseTransactionController.class).all()).withSelfRel());

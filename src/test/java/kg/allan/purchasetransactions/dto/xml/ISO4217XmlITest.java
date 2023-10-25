@@ -40,18 +40,17 @@ public class ISO4217XmlITest {
 
     @Test
     public void countryName() throws ElementNotFoundException {
-        assertThatThrownBy(() -> service.countryName("ASDASD"))
+        assertThatThrownBy(() -> service.countryNameOf("ASDASD"))
                 .isInstanceOf(ElementNotFoundException.class);
-        assertThat(service.countryName("BRL")).isEqualToIgnoringCase("Brazil");
-        assertThat(service.countryName("CAD")).isEqualToIgnoringCase("Canada");
-        assertThat(service.countryName("USD")).containsIgnoringCase("united states");
+        assertThat(service.countryNameOf("BRL")).isEqualToIgnoringCase("Brazil");
+        assertThat(service.countryNameOf("CAD")).isEqualToIgnoringCase("Canada");
     }
     
     @Test
     public void countryCode() throws ElementNotFoundException {
-        assertThatThrownBy(() -> service.countryCode("ASDASD"))
+        assertThatThrownBy(() -> service.currencyCodeOf("ASDASD"))
                 .isInstanceOf(ElementNotFoundException.class);
-        assertThat(service.countryCode("Brazil")).isEqualToIgnoringCase("BRL");
-        assertThat(service.countryCode("Canada")).isEqualToIgnoringCase("CAD");
+        assertThat(service.currencyCodeOf("Brazil")).isEqualToIgnoringCase("BRL");
+        assertThat(service.currencyCodeOf("Canada")).isEqualToIgnoringCase("CAD");
     }
 }

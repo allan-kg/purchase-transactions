@@ -7,13 +7,15 @@ import jakarta.json.bind.JsonbBuilder;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import kg.allan.purchasetransactions.dto.json.CountryTRREJson;
 import kg.allan.purchasetransactions.dto.json.DataTRREJson;
-import kg.allan.purchasetransactions.exception.GetRequestException;
+import kg.allan.purchasetransactions.exception.FetchFailedException;
 import kg.allan.purchasetransactions.exception.JsonParseException;
 import kg.allan.purchasetransactions.service.RestService;
 import kg.allan.purchasetransactions.service.TRREService;
@@ -113,7 +115,7 @@ public class TRREServiceImpl implements TRREService {
         return params;
     }
 
-    public Optional<CountryTRREJson> fetchRateByDate(String country, String date) throws GetRequestException, JsonParseException {
+    public Optional<CountryTRREJson> fetchRateByDate(String country, String date) throws FetchFailedException, JsonParseException {
         String uri = jsonEndpoint + "?" + fieldsParameter;
         String params = buildParametersSingleRate(country, date);
         if (StringUtils.hasText(params)) {
@@ -132,11 +134,11 @@ public class TRREServiceImpl implements TRREService {
                 throw new JsonParseException("Error: Unable to parse json.", ex);
             }
         } else {
-            throw new GetRequestException("Error: Unable to fetch json.");
+            throw new FetchFailedException("Error: Unable to fetch json.");
         }
     }
 
-    public List<CountryTRREJson> fetchRatesByDateRange(String country, String dateMin, String dateMax) throws GetRequestException, JsonParseException {
+    public List<CountryTRREJson> fetchRatesByDateRange(String country, String dateMin, String dateMax) throws FetchFailedException, JsonParseException {
         String uri = jsonEndpoint + "?" + fieldsParameter;
         String params = buildParametersForPeriod(country, dateMin, dateMax);
         if (StringUtils.hasText(params)) {
@@ -155,13 +157,20 @@ public class TRREServiceImpl implements TRREService {
                 throw new JsonParseException("Error: Unable to parse json.", ex);
             }
         } else {
-            throw new GetRequestException("Error: Unable to fetch json.");
+            throw new FetchFailedException("Error: Unable to fetch json.");
         }
     }
 
     @Override
-    public String formatDate(LocalDate maxDate) throws GetRequestException, JsonParseException {
+    public String formatDate(LocalDate maxDate){
         return maxDate.getYear() + "-" + String.format("%02d", maxDate.getMonthValue()) + "-" + String.format("%02d", maxDate.getDayOfMonth());
+    }
+
+    @Override
+    public Optional<CountryTRREJson> fetchClosestToMaxDate(String country, String dateMin, String dateMax) throws FetchFailedException, JsonParseException {
+        return fetchRatesByDateRange(country, dateMin, dateMax).stream()
+                .sorted(Collections.reverseOrder())
+                .findFirst();
     }
 
 }

@@ -7,10 +7,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import kg.allan.purchasetransactions.dto.ExchangeDTO;
+import kg.allan.purchasetransactions.dto.PurchaseWithExchangeDTO;
 import kg.allan.purchasetransactions.dto.PurchaseTransactionDTO;
 import kg.allan.purchasetransactions.dto.json.CountryTRREJson;
 import kg.allan.purchasetransactions.entity.PurchaseTransactionEntity;
+import kg.allan.purchasetransactions.exception.ConversionFailedException;
+import kg.allan.purchasetransactions.exception.ElementNotFoundException;
+import kg.allan.purchasetransactions.exception.FetchFailedException;
 import kg.allan.purchasetransactions.exception.InvalidPurchaseTransactionException;
+import kg.allan.purchasetransactions.exception.JsonParseException;
 import org.springframework.stereotype.Service;
 import kg.allan.purchasetransactions.service.PurchaseTransactionService;
 import org.modelmapper.Conditions;
@@ -18,22 +24,26 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import kg.allan.purchasetransactions.repository.PurchaseTransactionRepository;
+import kg.allan.purchasetransactions.service.ISO4217Service;
 import kg.allan.purchasetransactions.service.TRREService;
 import kg.allan.purchasetransactions.util.CurrencyUtil;
 import org.springframework.util.StringUtils;
 
 /**
- *
+ * 
  * @author allan
  */
 @Service
 public class PurchaseTransactionServiceImpl implements PurchaseTransactionService {
 
+      
     @Autowired
     private PurchaseTransactionRepository repository;
 
     @Autowired
     private TRREService trreService;
+
+    private ISO4217Service isoService;
 
     public Optional<CountryTRREJson> findCountryTRREJsonByFirstValid(List<CountryTRREJson> countries, LocalDate maxDate) {
         LocalDate minDate = maxDate.minusMonths(6);
@@ -64,7 +74,7 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
         mapper.getConfiguration().setPropertyCondition(Conditions.isNotNull()).setMatchingStrategy(MatchingStrategies.STRICT);
         return mapper.map(entity, PurchaseTransactionDTO.class);
     }
-    
+
     private void validateDescription(String desc) throws InvalidPurchaseTransactionException {
         if (desc == null) {
             throw new InvalidPurchaseTransactionException("Missing description.");
@@ -93,17 +103,16 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
         }
         try {
             BigDecimal bd = new BigDecimal(amount);
-            
-            if(bd.compareTo(BigDecimal.ZERO) <= 0)
+
+            if (bd.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new InvalidPurchaseTransactionException("Amount isn't positive.");
-            
+            }
+
             return bd;
         } catch (NumberFormatException e) {
             throw new InvalidPurchaseTransactionException("Invalid amount.", e);
         }
     }
-    
-    
 
     private PurchaseTransactionEntity instantiateEntity(PurchaseTransactionDTO dto) throws InvalidPurchaseTransactionException {
         PurchaseTransactionEntity entity = new PurchaseTransactionEntity();
@@ -116,12 +125,49 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
         var amount = validateAndRetrieveAmount(dto.getAmount());
         var usdMoney = CurrencyUtil.usdRoundedMonetaryAmountOf(amount);
         entity.setAmount(usdMoney);
-        
+
         return entity;
     }
 
+    private Optional<ExchangeDTO> convertPurchaseTransactionByCountry(PurchaseTransactionEntity entity, String country) throws FetchFailedException, JsonParseException, ElementNotFoundException {
+        var maxDate = trreService.formatDate(entity.getDate());
+        var minDate = trreService.formatDate(entity.getDate().minusMonths(6));
+
+        var oCountryTRREJson = trreService.fetchClosestToMaxDate(country, minDate, maxDate);
+        if (!oCountryTRREJson.isPresent()) {
+            return Optional.empty();
+        }
+
+        var countryTRREJson = oCountryTRREJson.get();
+        var countryCode = isoService.currencyCodeOf(country);
+
+        var convertedAmount = CurrencyUtil.convert(entity.getAmount(), countryCode, countryTRREJson.getExchangeRate());
+
+        ExchangeDTO cpt = new ExchangeDTO(convertedAmount, countryTRREJson.getExchangeRate(), countryTRREJson.getRecordDate());
+        return Optional.of(cpt);
+    }
+
+    private Optional<ExchangeDTO> convertPurchaseTransactionByCurrencyCode(PurchaseTransactionEntity entity, String currencyCode) throws FetchFailedException, JsonParseException, ElementNotFoundException {
+        var maxDate = trreService.formatDate(entity.getDate());
+        var minDate = trreService.formatDate(entity.getDate().minusMonths(6));
+
+        var country = isoService.countryNameOf(currencyCode);
+
+        var oCountryTRREJson = trreService.fetchClosestToMaxDate(country, minDate, maxDate);
+        if (!oCountryTRREJson.isPresent()) {
+            return Optional.empty();
+        }
+
+        var countryTRREJson = oCountryTRREJson.get();
+
+        var convertedAmount = CurrencyUtil.convert(entity.getAmount(), currencyCode, countryTRREJson.getExchangeRate());
+
+        ExchangeDTO cpt = new ExchangeDTO(convertedAmount, countryTRREJson.getExchangeRate(), countryTRREJson.getRecordDate());
+        return Optional.of(cpt);
+    }
+
     @Override
-    public PurchaseTransactionDTO newPurchaseTransaction(PurchaseTransactionDTO newPurchaseTransaction) throws InvalidPurchaseTransactionException{
+    public PurchaseTransactionDTO newPurchaseTransaction(PurchaseTransactionDTO newPurchaseTransaction) throws InvalidPurchaseTransactionException {
         PurchaseTransactionEntity entity = instantiateEntity(newPurchaseTransaction);
         return dto(repository.save(entity));
     }
@@ -146,7 +192,72 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
 
     @Override
     public List<PurchaseTransactionDTO> addAll(List<PurchaseTransactionDTO> listPurchaseTransactions) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // maybe replace the stream map with regular for
+        // to throw at the first error
+        var entities = listPurchaseTransactions.stream()
+                .parallel()
+                .map(dto -> {
+                    try {
+                        return instantiateEntity(dto);
+                    } catch (InvalidPurchaseTransactionException e) {
+                        return null;
+                    }
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+
+        return repository.saveAll(entities)
+                .stream()
+                .parallel()
+                .map(e -> dto(e))
+                .collect(Collectors.toList());
+    }
+
+    private PurchaseWithExchangeDTO convert(PurchaseTransactionEntity entity, String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+        Optional<ExchangeDTO> oConverted = Optional.empty();
+        if (target.length() == 3) {
+            oConverted = convertPurchaseTransactionByCurrencyCode(entity, target);
+            if (oConverted.isEmpty()) {
+                throw new ConversionFailedException("Couldn't convert transaction using code \"" + target + "\".");
+            }
+        } else {
+            oConverted = convertPurchaseTransactionByCountry(entity, target);
+            if (oConverted.isEmpty()) {
+                throw new ConversionFailedException("Couldn't convert transaction using country name \"" + target + "\".");
+            }
+        }
+
+        var purchase = dto(entity);
+        var exchange = oConverted.get();
+
+        return new PurchaseWithExchangeDTO(purchase, exchange);
+    }
+
+    @Override
+    public Optional<PurchaseWithExchangeDTO> convert(Integer id, String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+        var oEntity = repository.findById(id);
+        if (!oEntity.isPresent()) {
+            return Optional.empty();
+        }
+        var entity = oEntity.get();
+
+        return Optional.of(convert(entity, target));
+
+    }
+
+    @Override
+    public List<PurchaseWithExchangeDTO> convertAll(String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+        return repository.findAllBy()
+                .parallel()
+                .map(e -> {
+                    try {
+                        return convert(e, target);
+                    } catch (Exception ex) {
+                        return null;
+                    }
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
     }
 
 }
