@@ -19,6 +19,6 @@ import org.junit.platform.suite.api.Suite;
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "kg.allan.purchasetransactions.feature")
 @ConfigurationParameter(key = PLUGIN_PUBLISH_QUIET_PROPERTY_NAME, value = "true")
-public class CurrencyConversionTest {
+public class RunCurrencyConversionTest {
     
 }

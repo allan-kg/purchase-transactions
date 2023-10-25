@@ -4,53 +4,92 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
-import java.util.Currency;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import javax.money.CurrencyUnit;
+import javax.money.Monetary;
+import javax.money.NumberValue;
 import kg.allan.purchasetransactions.entity.Transaction;
-import lombok.RequiredArgsConstructor;
+import kg.allan.purchasetransactions.util.CurrencyUtil;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  *
  * @author allan
  */
 @Log4j2
-@RequiredArgsConstructor
 public class CurrencyConversionStepDefinitions extends CucumberSpringContextConfigTest {
-    private Currency targetCurrency;
-    private Transaction transaction;
 
-    @Given("there is a target currency defined")
-    public void givenTargetCurrencyDefined() {
-       log.info("ASDSADASDASD");
-       Assertions.assertEquals(1, 1);
+    private CurrencyUnit targetCurrency;
+    private Transaction expectedTransaction;
+    private Boolean transactionPossible;
+    private Transaction effectiveTransaction;
+    
+    @Given("A new transaction is being made")
+    public void setupNewTransaction(){
+        expectedTransaction = new Transaction();
+        transactionPossible = true;
+    }
+    
+    @And("the target currency is {word}")
+    public void setTargetCurrency(String currency) {
+        try{
+            this.targetCurrency = Monetary.getCurrency(currency);
+        }catch(Exception e){
+            fail("Can't extract currency from \"" + currency + "\". Reason : " + e.getMessage());
+        }
     }
 
-    @Given("there is a transaction registered with a day that the target conversion rate does not have an exact date match")
-    public void givenTransactionRegisteredWithoutExactDateMatch() {
+    @And("the stored transaction datetime is {word}")
+    public void setStoredTransactionDate(String datetime) {
+        try{
+            expectedTransaction.setDate(LocalDateTime.parse(datetime));
+        }catch(Exception e){
+            fail("Can't extract LocalDateTime from \"" + datetime + "\". Reason : " + e.getMessage());
+        }
     }
 
-    @Given("there is a registered conversion rate less than the transaction date for that currency")
-    public void givenConversionRateLessThanTransactionDate() {
+    @And("the stored transaction value is {bigdecimal}")
+    public void setStoredTransactionValue(BigDecimal value) {
+        expectedTransaction.setAmount(CurrencyUtil.usdMonetaryAmount(value));
     }
 
-    @Given("the date isn't older than 6 months of the transaction date")
-    public void givenDateNotOlderThanSixMonths() {
+    @When("the purchase transaction is requested")
+    public void performPurchaseTransaction() {
+        //FIXME
+        effectiveTransaction = expectedTransaction;
+        effectiveTransaction.setConvertedAmount(CurrencyUtil.convert(effectiveTransaction.getAmount(), targetCurrency, BigDecimal.valueOf(4.858)));
     }
 
-    @When("the conversion is requested")
-    public void whenConversionRequested() {
+    @Then("a conversion must be performed")
+    public void verifyConversionIsPerformed() {
     }
 
-    @Then("The value of that purchase transaction is converted to the target currency")
-    public void thenValueConvertedToTargetCurrency() {
+    @And("the rounded converted value is {bigdecimal}")
+    public void verifyRoundedConvertedValue(BigDecimal converted) {
+        NumberValue nv = CurrencyUtil.usdMonetaryAmount(converted).getNumber();
+        var comparisonResult = expectedTransaction.getConvertedAmount().getNumber().compareTo(nv);
+        assertThat(comparisonResult).isEqualTo(0);
     }
 
-    @Then("the conversion rate is not more than 6 months old from the transaction date")
-    public void thenConversionRateNotMoreThanSixMonthsOld() {
+    @And("the exchange datetime found is {word}")
+    public void verifyExchangeDateFound(String rate_date) {
+        LocalDateTime ldt = null;
+        try{
+            ldt = LocalDateTime.parse(rate_date);
+        }catch(Exception e){
+            fail("Can't extract LocalDateTime from \"" + rate_date + "\". Reason : " + e.getMessage());
+        }
+        var comparisonResult = expectedTransaction.getDate().compareTo(ldt);
+        assertThat(comparisonResult).isEqualTo(0);
     }
 
-    @Then("the conversion rate being used is the first before the transaction date")
-    public void thenConversionRateIsTheFirstBeforeTransactionDate() {
+    @And("there is no conversion rate up to {word}")
+    public void verifyNoConversionRate(String mindate) {
+    }
+
+    @And("the value returned is the error message")
+    public void verifyErrorMessageReturned() {
     }
 }

@@ -7,8 +7,10 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import kg.allan.purchasetransactions.dto.xml.CountryISO4217Xml;
 import kg.allan.purchasetransactions.dto.xml.ISO4217Xml;
+import kg.allan.purchasetransactions.exception.ElementNotFoundException;
 import kg.allan.purchasetransactions.exception.GetRequestException;
 import kg.allan.purchasetransactions.exception.XmlParseException;
 import kg.allan.purchasetransactions.service.ISO4217Service;
@@ -25,14 +27,16 @@ import org.springframework.web.client.RestClientException;
  */
 @Service
 public class ISO4217ServiceImpl implements ISO4217Service {
-
+    
+    private List<CountryISO4217Xml> countries;
+    
     @Value("${iso4217.xml.url}")
     private String xmlURL;
 
     @Autowired
     private RestService restService;
 
-    public String retrieveISO4217XmlContent() throws GetRequestException {
+    private String fetchISO4217XmlContent() throws GetRequestException {
         ResponseEntity<String> response = restService.getRestTemplate().getForEntity(xmlURL, String.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
@@ -41,14 +45,14 @@ public class ISO4217ServiceImpl implements ISO4217Service {
         }
     }
 
-    public List<CountryISO4217Xml> retrieveCountryISO4217XmlList() throws XmlParseException, GetRequestException {
+    private List<CountryISO4217Xml> fetchCountryISO4217XmlList() throws XmlParseException, GetRequestException {
         try {
         JAXBContext context = JAXBContext.newInstance(ISO4217Xml.class);
 
         Unmarshaller unmarshaller;
             unmarshaller = context.createUnmarshaller();
 
-            String xmlContent = retrieveISO4217XmlContent();
+            String xmlContent = fetchISO4217XmlContent();
 
             StringReader reader = new StringReader(xmlContent);
 
@@ -58,5 +62,38 @@ public class ISO4217ServiceImpl implements ISO4217Service {
         } catch (JAXBException ex) {
             throw new XmlParseException("Error: Unable to parse ISO4217XML.", ex);
         }
+    }
+    
+    @PostConstruct
+    private void fetchXmlData() throws XmlParseException, GetRequestException{
+        this.countries = fetchCountryISO4217XmlList();
+    }
+
+    public List<CountryISO4217Xml> getCountries() {
+        return this.countries;
+    }
+
+    public String countryCode(String name) throws ElementNotFoundException{
+        var oc = countries.stream()
+                .parallel()
+                .filter(c -> c.getCountry().equalsIgnoreCase(name))
+                .findFirst();
+        if(!oc.isPresent()){
+            throw new ElementNotFoundException("ISO 4217 code not found for country \"" + name + "\"");
+        }
+        var country = oc.get();
+        return country.getCode();
+    }
+
+    public String countryName(String code) throws ElementNotFoundException{
+        var oc = countries.stream()
+                .parallel()
+                .filter(c -> c.getCode().equalsIgnoreCase(code))
+                .findFirst();
+        if(!oc.isPresent()){
+            throw new ElementNotFoundException("Country name not found for ISO 4217 code \"" + code + "\"");
+        }
+        var country = oc.get();
+        return country.getCountry();
     }
 }

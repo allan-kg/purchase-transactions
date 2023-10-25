@@ -13,6 +13,10 @@ import org.javamoney.moneta.Money;
  */
 public class CurrencyUtil {
     
+    public static final Integer DEFAULT_SCALE = 2;
+    public static final CurrencyUnit CURRENCY_UNIT_USD = Monetary.getCurrency("USD");
+    public static final CurrencyUnit DEFAULT_CURRENCY_UNIT = CURRENCY_UNIT_USD;
+    
     
     synchronized public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate, int scale){
         var roundingQuery = RoundingQueryBuilder.of().setScale(scale).build();
@@ -26,7 +30,7 @@ public class CurrencyUtil {
     }
     
     synchronized public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate){
-        return convert(from, currency, exchangeRate, 2);
+        return convert(from, currency, exchangeRate, DEFAULT_SCALE);
     }
     
     synchronized public static MonetaryAmount convert(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate){
@@ -50,7 +54,12 @@ public class CurrencyUtil {
     }
     
     synchronized public static MonetaryAmount roundCents(MonetaryAmount money){
-        return roundCents(money, 2);
+        return roundCents(money, DEFAULT_SCALE);
     }
     
+    synchronized public static MonetaryAmount usdMonetaryAmount(BigDecimal value){
+        if(value == null)
+            value = BigDecimal.valueOf(0);
+        return Money.of(value, CURRENCY_UNIT_USD);
+    }
 }
