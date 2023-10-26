@@ -6,13 +6,15 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import javax.money.CurrencyUnit;
-import javax.money.Monetary;
-import javax.money.NumberValue;
+import kg.allan.purchasetransactions.dto.PurchaseWithExchangeDTO;
 import kg.allan.purchasetransactions.entity.PurchaseTransactionEntity;
+import kg.allan.purchasetransactions.exception.ConversionFailedException;
+import kg.allan.purchasetransactions.service.PurchaseTransactionService;
 import kg.allan.purchasetransactions.util.CurrencyUtil;
+import kg.allan.purchasetransactions.util.DateUtil;
 import lombok.extern.log4j.Log4j2;
 import static org.assertj.core.api.Assertions.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -21,75 +23,84 @@ import static org.assertj.core.api.Assertions.*;
 @Log4j2
 public class CurrencyConversionStepDefinitions extends CucumberSpringContextConfigTest {
 
-    private CurrencyUnit targetCurrency;
-    private PurchaseTransactionEntity expectedTransaction;
-    private Boolean transactionPossible;
-    private PurchaseTransactionEntity effectiveTransaction;
+    @Autowired
+    private PurchaseTransactionService service;
     
-    @Given("A new transaction is being made")
-    public void setupNewTransaction(){
-        expectedTransaction = new PurchaseTransactionEntity();
-        transactionPossible = true;
-    }
-    
-    @And("the target currency is {word}")
-    public void setTargetCurrency(String currency) {
-        try{
-            this.targetCurrency = Monetary.getCurrency(currency);
-        }catch(Exception e){
-            fail("Can't extract currency from \"" + currency + "\". Reason : " + e.getMessage());
-        }
+    private String targetCountry;
+    private PurchaseTransactionEntity entity;
+    PurchaseWithExchangeDTO convertedDto;
+
+    @Given("A new conversion is being made")
+    public void setupNewTransaction() {
+        targetCountry = null;
+        convertedDto = null;
+        entity = new PurchaseTransactionEntity();
+        entity.setDescription("");
     }
 
-    @And("the stored transaction date is {word}")
+    @And("the target country is {word}")
+    public void setTargetCurrency(String country) {
+        assertThat(country).isNotNull();
+        assertThat(country).isNotBlank();
+        targetCountry = country;
+    }
+
+    @And("the date is {word}")
     public void setStoredTransactionDate(String date) {
-        try{
-            expectedTransaction.setDate(LocalDate.parse(date));
-        }catch(Exception e){
+        try {
+            var ld = LocalDate.parse(date, DateUtil.FORMATTER_ISO8601);
+            entity.setDate(ld);
+        } catch (Exception e) {
             fail("Can't extract LocalDate from \"" + date + "\". Reason : " + e.getMessage());
         }
     }
 
-    @And("the stored transaction value is {bigdecimal}")
+    @And("the value is {bigdecimal}")
     public void setStoredTransactionValue(BigDecimal value) {
-        expectedTransaction.setAmount(CurrencyUtil.usdMonetaryAmountOf(value));
+        entity.setAmount(CurrencyUtil.usdMonetaryAmountOf(value));
     }
 
-    @When("the purchase transaction is requested")
+    @When("the conversion is requested")
     public void performPurchaseTransaction() {
-        //FIXME
-        effectiveTransaction = expectedTransaction;
-//        effectiveTransaction.setConvertedAmount(CurrencyUtil.convert(effectiveTransaction.getAmount(), targetCurrency, BigDecimal.valueOf(4.858)));
+        try {
+            convertedDto = service.convert(entity, targetCountry);
+        } catch (Exception ex) {
+            fail("Can't convert money. Reason : " + ex.getMessage());
+        }
     }
 
     @Then("a conversion must be performed")
     public void verifyConversionIsPerformed() {
+        assertThat(convertedDto.getConvertedAmount()).isNotBlank();
+        assertThat(convertedDto.getRate()).isNotBlank();
     }
 
-    @And("the rounded converted value is {bigdecimal}")
-    public void verifyRoundedConvertedValue(BigDecimal converted) {
-        NumberValue nv = CurrencyUtil.usdMonetaryAmountOf(converted).getNumber();
-//        var comparisonResult = expectedTransaction.getConvertedAmount().getNumber().compareTo(nv);
-//        assertThat(comparisonResult).isEqualTo(0);
+    @And("the rounded converted value is {word}")
+    public void verifyRoundedConvertedValue(String converted) {
+        assertThat(convertedDto.getConvertedAmount()).isNotNull();
+        assertThat(convertedDto.getConvertedAmount()).isNotBlank();
+        assertThat(convertedDto.getConvertedAmount()).hasSizeGreaterThan(4);
+        assertThat(convertedDto.getConvertedAmount().substring(4)).isEqualTo(converted);
     }
 
     @And("the exchange date found is {word}")
     public void verifyExchangeDateFound(String rate_date) {
-        LocalDate ldt = null;
-        try{
-            ldt = LocalDate.parse(rate_date);
-        }catch(Exception e){
-            fail("Can't extract LocalDate from \"" + rate_date + "\". Reason : " + e.getMessage());
+        try {
+            var ld = LocalDate.parse(convertedDto.getExchangeDate());//HERE< GET EXCHANGE DATE // XXX TODO FIXME
+            assertThat(DateUtil.iso8601Of(ld)).isEqualTo(rate_date);
+        } catch (Exception e) {
+            fail("Can't extract LocalDate from \"" + convertedDto.getDate() + "\". Reason : " + e.getMessage());
         }
-        var comparisonResult = expectedTransaction.getDate().compareTo(ldt);
-        assertThat(comparisonResult).isEqualTo(0);
     }
 
-    @And("there is no conversion rate up to {word}")
-    public void verifyNoConversionRate(String mindate) {
+    @When("the impossible conversion is requested")
+    public void verifyNoConversionRate() {
+        assertThatThrownBy(() -> service.convert(entity, targetCountry))
+                .isInstanceOf(ConversionFailedException.class);
     }
 
-    @And("the value returned is the error message")
+    @And("there is no exchange rate found")
     public void verifyErrorMessageReturned() {
+        assertThat(convertedDto).isNull();
     }
 }

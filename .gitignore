@@ -6,6 +6,7 @@ target/
 **/*.db
 **/*.swp
 **/*.xml
+**/*.patch
 
 ### STS ###
 .apt_generated

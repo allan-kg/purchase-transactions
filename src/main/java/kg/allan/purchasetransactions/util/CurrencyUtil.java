@@ -4,8 +4,9 @@ import java.math.BigDecimal;
 import javax.money.CurrencyUnit;
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
+import javax.money.MonetaryRounding;
 import javax.money.RoundingQueryBuilder;
-import lombok.Synchronized;
+import lombok.extern.log4j.Log4j2;
 import org.javamoney.moneta.Money;
 
 /**
@@ -18,38 +19,45 @@ public class CurrencyUtil {
     public static final Integer DEFAULT_SCALE = 2;
     public static final CurrencyUnit CURRENCY_UNIT_USD = Monetary.getCurrency("USD");
     public static final CurrencyUnit DEFAULT_CURRENCY_UNIT = CURRENCY_UNIT_USD;
+    public static final MonetaryRounding DEFAULT_ROUNDING;
+    
+    static{
+        var roundingQuery = RoundingQueryBuilder.of().setScale(DEFAULT_SCALE).setCurrency(DEFAULT_CURRENCY_UNIT).build();
+        DEFAULT_ROUNDING = Monetary.getRounding(roundingQuery);
+    }
+    
 
-    public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate, int scale) {
-        var roundingQuery = RoundingQueryBuilder.of().setScale(scale).build();
+    public static MonetaryAmount convertRounded(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate, int scale) {
+        var roundingQuery = RoundingQueryBuilder.of().setScale(scale).setCurrency(currency).build();
         var rounding = Monetary.getRounding(roundingQuery);
         return Money.of(from.getNumber(), currency).multiply(exchangeRate).with(rounding);
     }
 
-    public static MonetaryAmount convert(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate, int scale) {
+    public static MonetaryAmount convertRounded(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate, int scale) {
         CurrencyUnit currency = Monetary.getCurrency(currencyCode);
-        return convert(from, currency, exchangeRate, scale);
+        return convertRounded(from, currency, exchangeRate, scale);
     }
 
-    public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate) {
-        return convert(from, currency, exchangeRate, DEFAULT_SCALE);
+    public static MonetaryAmount convertRounded(MonetaryAmount from, CurrencyUnit currency, BigDecimal exchangeRate) {
+        return Money.of(from.getNumber(), currency).multiply(exchangeRate).with(DEFAULT_ROUNDING);
     }
 
-    public static MonetaryAmount convert(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate) {
+    public static MonetaryAmount convertRounded(MonetaryAmount from, String currencyCode, BigDecimal exchangeRate) {
         CurrencyUnit currency = Monetary.getCurrency(currencyCode);
-        return convert(from, currency, exchangeRate);
+        return CurrencyUtil.convertRounded(from, currency, exchangeRate);
     }
 
-    public static MonetaryAmount convert(MonetaryAmount from, CurrencyUnit currency) {
-        return convert(from, currency, DEFAULT_EXCHANGE_RATE);
+    public static MonetaryAmount convertRounded(MonetaryAmount from, CurrencyUnit currency) {
+        return CurrencyUtil.convertRounded(from, currency, DEFAULT_EXCHANGE_RATE);
     }
 
-    public static MonetaryAmount convert(MonetaryAmount from, String currencyCode) {
+    public static MonetaryAmount convertRounded(MonetaryAmount from, String currencyCode) {
         CurrencyUnit currency = Monetary.getCurrency(currencyCode);
-        return convert(from, currency);
+        return CurrencyUtil.convertRounded(from, currency);
     }
-
+    
     public static MonetaryAmount roundCents(MonetaryAmount money, int scale) {
-        var roundingQuery = RoundingQueryBuilder.of().setScale(scale).build();
+        var roundingQuery = RoundingQueryBuilder.of().setScale(scale).setCurrency(DEFAULT_CURRENCY_UNIT).build();
         var rounding = Monetary.getRounding(roundingQuery);
         return money.with(rounding);
     }

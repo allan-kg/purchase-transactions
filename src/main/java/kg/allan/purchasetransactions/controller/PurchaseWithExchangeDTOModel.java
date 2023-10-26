@@ -17,8 +17,8 @@ public class PurchaseWithExchangeDTOModel implements RepresentationModelAssemble
     @Override
     public EntityModel<PurchaseWithExchangeDTO> toModel(PurchaseWithExchangeDTO dto) {
         return EntityModel.of(dto,
-        linkTo(methodOn(PurchaseTransactionController.class).one(dto.getId())).withSelfRel(),
-        linkTo(methodOn(PurchaseTransactionController.class).all()).withRel("orders"));
+        linkTo(methodOn(PurchaseTransactionController.class).convert(dto.getId(), dto.getCountry())).withSelfRel(),
+        linkTo(methodOn(PurchaseTransactionController.class).convertAll(dto.getCountry())).withRel("all"));
     }
     
 }

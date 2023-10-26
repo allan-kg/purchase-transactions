@@ -37,7 +37,7 @@ public class PurchaseTransactionController {
 
     @Autowired
     private PurchaseTransactionDTOModel assembler;
-    
+
     @Autowired
     private PurchaseWithExchangeDTOModel currencyAssembler;
 
@@ -50,7 +50,7 @@ public class PurchaseTransactionController {
                     .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                     .body(entityModel);
         } catch (InvalidPurchaseTransactionException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not create new purchase transaction : " + e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not create new purchase transaction : " + e.getMessage(), e);
         }
     }
 
@@ -87,23 +87,30 @@ public class PurchaseTransactionController {
 
         return CollectionModel.of(transactions, linkTo(methodOn(PurchaseTransactionController.class).all()).withSelfRel());
     }
-    
+
     @GetMapping("/transaction/{id}/{country}")
-    EntityModel<PurchaseWithExchangeDTO> convert(@PathVariable Integer id, @PathVariable String country) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
-        PurchaseWithExchangeDTO transaction = service.convert(id, country)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find purchase transaction \"" + id + "\""));
-        return currencyAssembler.toModel(transaction);
+    EntityModel<PurchaseWithExchangeDTO> convert(@PathVariable Integer id, @PathVariable String country) {
+        try {
+            PurchaseWithExchangeDTO transaction = service.convert(id, country)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find purchase transaction \"" + id + "\""));
+            return currencyAssembler.toModel(transaction);
+        } catch (FetchFailedException | JsonParseException | ConversionFailedException | ElementNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not retrieve purchase transaction with exchange : " + e.getMessage(), e);
+        }
     }
 
     @GetMapping("/transactions/{country}")
-    CollectionModel<EntityModel<PurchaseWithExchangeDTO>> convertAll( @PathVariable String country) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+    CollectionModel<EntityModel<PurchaseWithExchangeDTO>> convertAll(@PathVariable String country) {
+        try {
+            List<EntityModel<PurchaseWithExchangeDTO>> transactions = service.convertAll(country).stream()
+                    .parallel()
+                    .map(currencyAssembler::toModel)
+                    .collect(Collectors.toList());
 
-        List<EntityModel<PurchaseWithExchangeDTO>> transactions = service.convertAll(country).stream()
-                .parallel()
-                .map(currencyAssembler::toModel)
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(transactions, linkTo(methodOn(PurchaseTransactionController.class).all()).withSelfRel());
+            return CollectionModel.of(transactions, linkTo(methodOn(PurchaseTransactionController.class).all()).withSelfRel());
+        } catch (FetchFailedException | JsonParseException | ConversionFailedException | ElementNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not retrieve purchase transactions with exchange : " + e.getMessage(), e);
+        }
     }
 
 }

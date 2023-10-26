@@ -19,6 +19,7 @@ import kg.allan.purchasetransactions.exception.FetchFailedException;
 import kg.allan.purchasetransactions.exception.JsonParseException;
 import kg.allan.purchasetransactions.service.RestService;
 import kg.allan.purchasetransactions.service.TRREService;
+import kg.allan.purchasetransactions.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -162,15 +163,16 @@ public class TRREServiceImpl implements TRREService {
     }
 
     @Override
-    public String formatDate(LocalDate maxDate){
-        return maxDate.getYear() + "-" + String.format("%02d", maxDate.getMonthValue()) + "-" + String.format("%02d", maxDate.getDayOfMonth());
+    public String formatDate(LocalDate date){
+        return DateUtil.iso8601Of(date);
     }
 
     @Override
     public Optional<CountryTRREJson> fetchClosestToMaxDate(String country, String dateMin, String dateMax) throws FetchFailedException, JsonParseException {
-        return fetchRatesByDateRange(country, dateMin, dateMax).stream()
-                .sorted(Collections.reverseOrder())
-                .findFirst();
+        var countryJsons = fetchRatesByDateRange(country, dateMin, dateMax);
+        if(countryJsons.size() == 0)
+            return Optional.empty();
+        return Optional.of(countryJsons.get(countryJsons.size()-1));
     }
 
 }

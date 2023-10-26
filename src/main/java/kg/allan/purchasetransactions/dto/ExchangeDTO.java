@@ -18,4 +18,5 @@ public class ExchangeDTO {
     private MonetaryAmount amount;
     private BigDecimal rate;
     private LocalDate date;
+    private String country;
 }

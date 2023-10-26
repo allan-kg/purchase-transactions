@@ -27,6 +27,8 @@ import kg.allan.purchasetransactions.repository.PurchaseTransactionRepository;
 import kg.allan.purchasetransactions.service.ISO4217Service;
 import kg.allan.purchasetransactions.service.TRREService;
 import kg.allan.purchasetransactions.util.CurrencyUtil;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 /**
@@ -42,6 +44,7 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
     @Autowired
     private TRREService trreService;
 
+    @Autowired
     private ISO4217Service isoService;
 
     public Optional<CountryTRREJson> findCountryTRREJsonByFirstValid(List<CountryTRREJson> countries, LocalDate maxDate) {
@@ -140,9 +143,9 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
         var countryTRREJson = oCountryTRREJson.get();
         var countryCode = isoService.currencyCodeOf(country);
 
-        var convertedAmount = CurrencyUtil.convert(entity.getAmount(), countryCode, countryTRREJson.getExchangeRate());
+        var convertedAmount = CurrencyUtil.convertRounded(entity.getAmount(), countryCode, countryTRREJson.getExchangeRate());
 
-        ExchangeDTO cpt = new ExchangeDTO(convertedAmount, countryTRREJson.getExchangeRate(), countryTRREJson.getRecordDate());
+        ExchangeDTO cpt = new ExchangeDTO(convertedAmount, countryTRREJson.getExchangeRate(), countryTRREJson.getRecordDate(), country);
         return Optional.of(cpt);
     }
 
@@ -162,6 +165,7 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
         return optdto;
     }
 
+    @Transactional
     @Override
     public List<PurchaseTransactionDTO> all() {
         return repository.findAllBy()
@@ -170,6 +174,7 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public List<PurchaseTransactionDTO> addAll(List<PurchaseTransactionDTO> listPurchaseTransactions) {
         // maybe replace the stream map with regular for
@@ -193,11 +198,12 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
                 .collect(Collectors.toList());
     }
 
-    private PurchaseWithExchangeDTO convert(PurchaseTransactionEntity entity, String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
+    @Override
+    public PurchaseWithExchangeDTO convert(PurchaseTransactionEntity entity, String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
         Optional<ExchangeDTO> oConverted = Optional.empty();
         oConverted = convertPurchaseTransactionByCountry(entity, target);
         if (oConverted.isEmpty()) {
-            throw new ConversionFailedException("Couldn't convert transaction using country name \"" + target + "\".");
+            throw new ConversionFailedException("Exchange rate not found for country name \"" + target + "\".");
         }
 
         var purchase = dto(entity);
@@ -218,6 +224,7 @@ public class PurchaseTransactionServiceImpl implements PurchaseTransactionServic
 
     }
 
+    @Transactional
     @Override
     public List<PurchaseWithExchangeDTO> convertAll(String target) throws FetchFailedException, JsonParseException, ElementNotFoundException, ConversionFailedException {
         return repository.findAllBy()

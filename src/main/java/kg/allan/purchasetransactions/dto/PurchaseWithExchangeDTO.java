@@ -1,8 +1,10 @@
 package kg.allan.purchasetransactions.dto;
 
+import kg.allan.purchasetransactions.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.server.core.Relation;
 
 /**
  * Data Transfer Object that includes original data from the purchase as well as
@@ -17,10 +19,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Relation(collectionRelation = "purchase_transactions_with_exchange", itemRelation = "purchase_with_exchange")
 public class PurchaseWithExchangeDTO extends PurchaseTransactionDTO {
     private String rate;
-
     private String convertedAmount;
+    private String exchangeDate;
+    private String country;
     
     public PurchaseWithExchangeDTO(PurchaseTransactionDTO purchase, ExchangeDTO exchange){
         this.setDate(purchase.getDate());
@@ -30,5 +34,7 @@ public class PurchaseWithExchangeDTO extends PurchaseTransactionDTO {
         
         this.setRate(exchange.getRate().toString());
         this.setConvertedAmount(exchange.getAmount().toString());
+        this.setExchangeDate(exchange.getDate().toString());
+        this.setCountry(exchange.getCountry());
     }
 }

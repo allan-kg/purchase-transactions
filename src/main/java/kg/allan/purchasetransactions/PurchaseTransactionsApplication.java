@@ -5,6 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * 
+ * @author Allan Krama Guimarães
+ */
 @SpringBootApplication
 @EnableJpaRepositories
 public class PurchaseTransactionsApplication {

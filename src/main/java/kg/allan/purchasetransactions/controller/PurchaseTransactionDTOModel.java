@@ -13,13 +13,14 @@ import org.springframework.stereotype.Component;
  * @author allan
  */
 @Component
+
 public class PurchaseTransactionDTOModel implements RepresentationModelAssembler<PurchaseTransactionDTO, EntityModel<PurchaseTransactionDTO>>{
 
     @Override
     public EntityModel<PurchaseTransactionDTO> toModel(PurchaseTransactionDTO dto) {
         return EntityModel.of(dto,
         linkTo(methodOn(PurchaseTransactionController.class).one(dto.getId())).withSelfRel(),
-        linkTo(methodOn(PurchaseTransactionController.class).all()).withRel("orders"));
+        linkTo(methodOn(PurchaseTransactionController.class).all()).withRel("all"));
     }
     
 }

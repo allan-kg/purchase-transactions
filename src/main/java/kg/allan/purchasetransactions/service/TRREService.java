@@ -13,7 +13,7 @@ import kg.allan.purchasetransactions.exception.JsonParseException;
  */
 public interface TRREService {
     public Optional<CountryTRREJson> fetchRateByDate(String country,String date) throws FetchFailedException, JsonParseException;
-    public String formatDate(LocalDate maxDate);
+    public String formatDate(LocalDate date);
     public List<CountryTRREJson> fetchRatesByDateRange(String country, String dateMin, String dateMax) throws FetchFailedException, JsonParseException;
     public Optional<CountryTRREJson> fetchClosestToMaxDate(String country, String dateMin, String dateMax) throws FetchFailedException, JsonParseException;
 }

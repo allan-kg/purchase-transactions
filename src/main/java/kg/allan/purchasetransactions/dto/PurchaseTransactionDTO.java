@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.server.core.Relation;
 
 /**
  * Data Transfer Object for {@link PurchaseTransactionEntity}.
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Relation(collectionRelation = "purchase_transactions", itemRelation = "purchase_transaction")
 public class PurchaseTransactionDTO {
     private Integer id;
     
