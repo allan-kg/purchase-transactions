@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionsApplication
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions;
 
 import org.springframework.boot.SpringApplication;

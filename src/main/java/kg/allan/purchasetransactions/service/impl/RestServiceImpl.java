@@ -1,3 +1,13 @@
+/*
+ * RestServiceImpl
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service.impl;
 
 import kg.allan.purchasetransactions.service.RestService;
@@ -8,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Service
 public class RestServiceImpl implements RestService {

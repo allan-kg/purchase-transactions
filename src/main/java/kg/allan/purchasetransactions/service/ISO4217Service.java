@@ -1,3 +1,13 @@
+/*
+ * ISO4217Service
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service;
 
 import java.util.List;
@@ -8,7 +18,7 @@ import kg.allan.purchasetransactions.exception.XmlParseException;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 public interface ISO4217Service {
     public List<CountryISO4217Xml> getCountries();

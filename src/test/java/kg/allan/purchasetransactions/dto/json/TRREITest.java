@@ -1,3 +1,13 @@
+/*
+ * TRREITest
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.dto.json;
 
 import java.math.BigDecimal;
@@ -13,7 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
 @ActiveProfiles("integration")

@@ -1,3 +1,13 @@
+/*
+ * TRREService
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service;
 
 import java.time.LocalDate;
@@ -9,7 +19,7 @@ import kg.allan.purchasetransactions.exception.JsonParseException;
 
 /**
  * Valid date format : yyyy-MM-dd
- * @author allan
+ * @author Allan Krama Guimarães
  */
 public interface TRREService {
     public Optional<CountryTRREJson> fetchRateByDate(String country,String date) throws FetchFailedException, JsonParseException;

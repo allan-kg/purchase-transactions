@@ -1,3 +1,13 @@
+/*
+ * PurchaseWithExchangeDTOModel
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.controller;
 
 import kg.allan.purchasetransactions.dto.PurchaseWithExchangeDTO;
@@ -9,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Component
 public class PurchaseWithExchangeDTOModel implements RepresentationModelAssembler<PurchaseWithExchangeDTO, EntityModel<PurchaseWithExchangeDTO>>{

@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionEntity
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.entity;
 
 import jakarta.persistence.Column;
@@ -18,7 +28,7 @@ import lombok.NoArgsConstructor;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Data
 @Builder

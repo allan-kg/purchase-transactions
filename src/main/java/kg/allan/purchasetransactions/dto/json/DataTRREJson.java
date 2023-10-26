@@ -1,3 +1,13 @@
+/*
+ * DataTRREJson
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.dto.json;
 
 import jakarta.json.bind.annotation.JsonbProperty;
@@ -10,7 +20,7 @@ import lombok.NoArgsConstructor;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Data
 @NoArgsConstructor

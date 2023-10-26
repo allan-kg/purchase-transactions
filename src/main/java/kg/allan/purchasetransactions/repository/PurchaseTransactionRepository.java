@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionRepository
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.repository;
 
 import java.util.List;
@@ -10,7 +20,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Repository
 public interface PurchaseTransactionRepository extends JpaRepository<PurchaseTransactionEntity, Integer>{

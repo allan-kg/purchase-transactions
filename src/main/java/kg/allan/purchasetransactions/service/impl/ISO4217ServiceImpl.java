@@ -1,3 +1,13 @@
+/*
+ * ISO4217ServiceImpl
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service.impl;
 
 import jakarta.xml.bind.JAXBContext;
@@ -23,7 +33,7 @@ import org.springframework.web.client.RestClientException;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Service
 public class ISO4217ServiceImpl implements ISO4217Service {

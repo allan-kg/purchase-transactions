@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionDTOModel
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.controller;
 
 import kg.allan.purchasetransactions.controller.PurchaseTransactionController;
@@ -10,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Component
 

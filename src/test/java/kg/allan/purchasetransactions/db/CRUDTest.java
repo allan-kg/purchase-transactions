@@ -1,3 +1,13 @@
+/*
+ * CRUDTest
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.db;
 
 import jakarta.transaction.Transactional;
@@ -24,7 +34,7 @@ import kg.allan.purchasetransactions.repository.PurchaseTransactionRepository;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
 @TestMethodOrder(OrderAnnotation.class)

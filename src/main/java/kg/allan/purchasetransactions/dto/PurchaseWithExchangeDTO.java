@@ -1,3 +1,13 @@
+/*
+ * PurchaseWithExchangeDTO
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.dto;
 
 import kg.allan.purchasetransactions.util.DateUtil;
@@ -14,7 +24,7 @@ import org.springframework.hateoas.server.core.Relation;
  * no requirement to serialize this object in any format other than JSON for the
  * endpoints.
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Data
 @NoArgsConstructor

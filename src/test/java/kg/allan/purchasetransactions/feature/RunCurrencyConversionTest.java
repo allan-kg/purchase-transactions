@@ -1,3 +1,13 @@
+/*
+ * RunCurrencyConversionTest
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.feature;
 
 import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
@@ -10,7 +20,7 @@ import org.junit.platform.suite.api.Suite;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Suite
 @IncludeEngines("cucumber")

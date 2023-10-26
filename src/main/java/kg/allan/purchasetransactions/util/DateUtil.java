@@ -1,3 +1,13 @@
+/*
+ * DateUtil
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.util;
 
 import java.time.LocalDate;
@@ -5,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 public class DateUtil {
     public static final DateTimeFormatter FORMATTER_ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd");

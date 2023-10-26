@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionController
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.controller;
 
 import java.util.List;
@@ -27,7 +37,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @RestController
 public class PurchaseTransactionController {

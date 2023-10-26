@@ -1,3 +1,5 @@
+# Allan Krama Guimarães - 2023 - All rights reserved.
+
 Feature: Retrieve purchase transaction
 
 	Context:

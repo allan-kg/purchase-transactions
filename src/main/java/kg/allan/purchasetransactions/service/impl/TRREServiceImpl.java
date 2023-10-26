@@ -1,3 +1,13 @@
+/*
+ * TRREServiceImpl
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service.impl;
 
 import jakarta.json.Json;
@@ -29,7 +39,7 @@ import org.springframework.web.client.RestClientException;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Service
 public class TRREServiceImpl implements TRREService {

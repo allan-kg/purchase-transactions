@@ -1,3 +1,4 @@
+# Allan Krama Guimarães - 2023 - All rights reserved.
 Feature: Currency Conversion
 	All values are considered to be stored in USD.
 

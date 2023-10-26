@@ -1,3 +1,13 @@
+/*
+ * CurrencyUtil
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.util;
 
 import java.math.BigDecimal;
@@ -11,7 +21,7 @@ import org.javamoney.moneta.Money;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 public class CurrencyUtil {
 

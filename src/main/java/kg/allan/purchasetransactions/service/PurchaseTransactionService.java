@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionService
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service;
 
 import java.util.List;
@@ -13,7 +23,7 @@ import kg.allan.purchasetransactions.exception.JsonParseException;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 public interface PurchaseTransactionService {
     public PurchaseTransactionDTO newPurchaseTransaction(PurchaseTransactionDTO newPurchaseTransaction) throws InvalidPurchaseTransactionException;

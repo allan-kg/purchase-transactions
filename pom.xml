@@ -10,7 +10,7 @@
     </parent>
     <groupId>kg.allan</groupId>
     <artifactId>purchase-transactions</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>purchase-transactions</name>
     <description>PoC of purchase transactions.</description>
     <properties>

@@ -1,3 +1,13 @@
+/*
+ * CountryISO4217Xml
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.dto.xml;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -23,7 +33,7 @@ import lombok.NoArgsConstructor;
  * &nbsp;&nbsp;{@literal <!-- ... -->}<br>
  * &nbsp;{@literal </CcyTbl>}<br>
  * {@literal </ISO_4217>}<br>
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Data
 @NoArgsConstructor

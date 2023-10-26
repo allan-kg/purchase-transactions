@@ -1,3 +1,13 @@
+/*
+ * ISO4217XmlITest
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.dto.xml;
 
 import java.util.Arrays;
@@ -14,7 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
 @ActiveProfiles("integration")

@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionDTO
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.dto;
 
 import java.math.BigDecimal;
@@ -12,7 +22,7 @@ import org.springframework.hateoas.server.core.Relation;
  * I have intentionally chosen not to implement Serializable as there has been
  * no requirement to serialize this object in any format other than JSON for
  * the endpoints.
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Data
 @NoArgsConstructor

@@ -1,3 +1,13 @@
+/*
+ * CurrencyConversionStepDefinitions
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.feature;
 
 import io.cucumber.java.en.Given;
@@ -18,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Log4j2
 public class CurrencyConversionStepDefinitions extends CucumberSpringContextConfigTest {

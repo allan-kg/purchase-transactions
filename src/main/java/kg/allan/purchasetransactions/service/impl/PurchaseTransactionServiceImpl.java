@@ -1,3 +1,13 @@
+/*
+ * PurchaseTransactionServiceImpl
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.service.impl;
 
 import java.math.BigDecimal;
@@ -33,7 +43,7 @@ import org.springframework.util.StringUtils;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @Service
 public class PurchaseTransactionServiceImpl implements PurchaseTransactionService {

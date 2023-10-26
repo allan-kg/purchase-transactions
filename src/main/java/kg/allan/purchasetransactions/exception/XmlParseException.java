@@ -1,8 +1,18 @@
+/*
+ * XmlParseException
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.exception;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 public class XmlParseException extends Exception {
     public XmlParseException(Throwable cause) {

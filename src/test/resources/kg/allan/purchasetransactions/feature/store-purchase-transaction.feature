@@ -1,3 +1,4 @@
+# Allan Krama Guimarães - 2023 - All rights reserved.
 Feature: Store purchase transation
 	The application must be able to accept and store a purchase transaction.
 

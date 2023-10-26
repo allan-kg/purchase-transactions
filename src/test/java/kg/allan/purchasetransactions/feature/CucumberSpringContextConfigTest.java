@@ -1,3 +1,13 @@
+/*
+ * CucumberSpringContextConfigTest
+ *
+ * v1.0
+ *
+ * 2023
+ *
+ * Author: Allan Krama Guimarães
+ */
+
 package kg.allan.purchasetransactions.feature;
 
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +18,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 
 /**
  *
- * @author allan
+ * @author Allan Krama Guimarães
  */
 @CucumberContextConfiguration
 @SpringBootTest(classes = PurchaseTransactionsApplication.class)
